@@ -4,6 +4,42 @@
   padding: 0 1rem;
 }
 
+/* 탭 네비게이션 스타일 */
+.tab-navigation {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.tab-button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* 일일 건강 정보 섹션 스타일 */
+.daily-health-section {
+  margin-top: 20px;
+}
+
+.success {
+  color: #28a745;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  background-color: #d4edda;
+}
+
 /* 헤더 스타일 */
 .App-header {
   margin-bottom: 30px;
@@ -24,18 +60,17 @@ h2 {
 section, .medical-chart {
   background: #e9ecef;
   border-radius: 12px;
-  padding: 1rem;  /* 1.5rem에서 1rem으로 감소 */
-  margin-bottom: 1rem;  /* 1.5rem에서 1rem으로 감소 */
+  padding: 1rem;
+  margin-bottom: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid #dee2e6;
 }
-
 /* 섹션 제목 마진 감소 */
 .section-title {
   font-size: 1.25rem;
   color: #2d3748;
-  margin-bottom: 1rem;  /* 1.5rem에서 1rem으로 감소 */
-  padding-bottom: 0.5rem;  /* 0.75rem에서 0.5rem으로 감소 */
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
   border-bottom: 2px solid #4a5568;
 }
 
@@ -44,7 +79,7 @@ section, .medical-chart {
   display: grid;
   grid-template-columns: 150px 1fr;
   border-bottom: 1px solid #e1e4e8;
-  min-height: 50px;  /* 62px에서 50px로 감소 */
+  min-height: 50px;
 }
 
 /* 입력 필드 높이 감소 */
@@ -53,20 +88,20 @@ section, .medical-chart {
 .form-group textarea,
 .modern-select {
   width: 100%;
-  padding: 0.5rem;  /* 0.75rem에서 0.5rem으로 감소 */
+  padding: 0.5rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.2s;
   background-color: #fff;
-  height: 38px;  /* 45px에서 38px로 감소 */
+  height: 38px;
   box-sizing: border-box;
 }
 
 /* 차트 내용 패딩 감소 */
 .chart-label {
   background: #f6f8fa;
-  padding: 8px 16px;  /* 12px 20px에서 8px 16px로 감소 */
+  padding: 8px 16px;
   font-weight: 500;
   border-right: 1px solid #e1e4e8;
   color: #4a5568;
@@ -75,10 +110,10 @@ section, .medical-chart {
 }
 
 .chart-content {
-  padding: 8px 16px;  /* 12px 20px에서 8px 16px로 감소 */
+  padding: 8px 16px;
   display: flex;
   align-items: center;
-  gap: 8px;  /* 10px에서 8px로 감소 */
+  gap: 8px;
 }
 
 .chart-content input,
@@ -89,22 +124,6 @@ section, .medical-chart {
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: white;
-  box-sizing: border-box;
-}
-
-/* 입력 필드 공통 스타일 */
-.form-group input,
-.form-group select,
-.form-group textarea,
-.modern-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.2s;
-  background-color: #fff;
-  height: 45px;
   box-sizing: border-box;
 }
 
@@ -147,43 +166,6 @@ section, .medical-chart {
   line-height: 1.6;
 }
 
-/* 선택된 항목 스타일 */
-.selected-medications,
-.selected-symptoms {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.selected-medication-item,
-.selected-symptom-item {
-  display: flex;
-  align-items: center;
-  background: #f0f0f0;
-  padding: 5px 10px;
-  border-radius: 4px;
-  gap: 8px;
-}
-
-/* 버튼 스타일 */
-.submit-button {
-  width: 100%;
-  padding: 1rem;
-  background-color: #4299e1;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.submit-button:hover {
-  background-color: #3182ce;
-}
-
 /* 복용 약물 선택 영역 스타일 */
 .medication-select-area {
   display: flex;
@@ -202,7 +184,6 @@ section, .medical-chart {
   background-color: white;
   cursor: pointer;
 }
-
 /* 맥파분석 섹션 스타일 */
 .pulse-analysis {
   display: grid;
@@ -247,33 +228,6 @@ section, .medical-chart {
   top: 50%;
   transform: translateY(-50%);
   color: #666;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .form-group {
-    flex: 0 0 100%;
-  }
-  
-  .radio-row, 
-  .checkbox-row {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .chart-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .chart-label {
-    border-right: none;
-    border-bottom: 1px solid #e1e4e8;
-  }
-
-  .pulse-analysis {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
 }
 
 /* 증상 선택 섹션 스타일 */
@@ -327,7 +281,7 @@ section, .medical-chart {
   cursor: not-allowed;
 }
 
-/* chart-header 스타일도 배경색과 어울리도록 조정 */
+/* chart-header 스타일 */
 .chart-header {
   font-size: 1.1rem;
   font-weight: 600;
@@ -335,30 +289,29 @@ section, .medical-chart {
   padding: 0.5rem;
   border-radius: 4px;
 }
-
 /* 각 섹션별 헤더 색상 */
-.medical-chart:nth-of-type(1) .chart-header {  /* 기본 정보 */
+.medical-chart:nth-of-type(1) .chart-header {
   background-color: #4a90e2;
   color: white;
 }
 
-.medical-chart:nth-of-type(2) .chart-header {  /* 맥파 분석 */
-  background-color: #50c878;  /* 에메랄드 그린 */
+.medical-chart:nth-of-type(2) .chart-header {
+  background-color: #50c878;
   color: white;
 }
 
-.medical-chart:nth-of-type(3) .chart-header {  /* 증상 선택 */
-  background-color: #e74c3c;  /* 선명한 빨강 */
+.medical-chart:nth-of-type(3) .chart-header {
+  background-color: #e74c3c;
   color: white;
 }
 
-.medical-chart:nth-of-type(4) .chart-header {  /* 메모 */
-  background-color: #9b59b6;  /* 보라색 */
+.medical-chart:nth-of-type(4) .chart-header {
+  background-color: #9b59b6;
   color: white;
 }
 
-.medical-chart:last-child .chart-header {  /* 마지막 섹션 */
-  background-color: #f39c12;  /* 주황색 */
+.medical-chart:last-child .chart-header {
+  background-color: #f39c12;
   color: white;
 }
 
@@ -403,6 +356,7 @@ input.error:focus, select.error:focus {
   box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
+/* 데이터 관리 버튼 스타일 */
 .data-management-buttons {
   display: flex;
   gap: 10px;
@@ -413,39 +367,7 @@ input.error:focus, select.error:focus {
 
 .backup-button,
 .restore-button,
-.delete-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-  color: white;
-}
-
-.backup-button {
-  background-color: #28a745;
-}
-
-.restore-button {
-  background-color: #17a2b8;
-}
-
-.delete-button {
-  background-color: #dc3545;
-}
-
-.backup-button:hover { background-color: #218838; }
-.restore-button:hover { background-color: #138496; }
-.delete-button:hover { background-color: #c82333; }
-
-.backup-button:disabled,
-.restore-button:disabled,
-.delete-button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
+.delete-button,
 .search-button {
   padding: 8px 16px;
   border: none;
@@ -454,22 +376,67 @@ input.error:focus, select.error:focus {
   font-size: 14px;
   transition: background-color 0.3s;
   color: white;
-  background-color: #007bff;  /* 파란색 계열 */
+  min-width: 100px;
 }
 
-.search-button:hover {
-  background-color: #0056b3;
-}
+.backup-button { background-color: #28a745; }
+.restore-button { background-color: #17a2b8; }
+.delete-button { background-color: #dc3545; }
+.search-button { background-color: #007bff; }
 
-.data-management-buttons .search-button,
-.data-management-buttons .submit-button,
-.data-management-buttons .backup-button,
-.data-management-buttons .restore-button,
-.data-management-buttons .delete-button {
-  min-width: 100px;  /* 버튼들의 너비를 일정하게 */
-}
+.backup-button:hover { background-color: #218838; }
+.restore-button:hover { background-color: #138496; }
+.delete-button:hover { background-color: #c82333; }
+.search-button:hover { background-color: #0056b3; }
 
+.backup-button:disabled,
+.restore-button:disabled,
+.delete-button:disabled,
 .search-button:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .App {
+    padding: 10px;
+  }
+  
+  .form-group {
+    flex: 0 0 100%;
+  }
+  
+  .radio-row, 
+  .checkbox-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-label {
+    border-right: none;
+    border-bottom: 1px solid #e1e4e8;
+  }
+
+  .pulse-analysis,
+  .symptom-selection,
+  .lifestyle-selection {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .data-management-buttons {
+    flex-direction: column;
+  }
+  
+  .backup-button,
+  .restore-button,
+  .delete-button,
+  .search-button {
+    width: 100%;
+  }
 }
