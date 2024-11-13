@@ -20,35 +20,53 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* 섹션 공통 스타일 */
+/* 섹션 공통 스타일 - 패딩 감소 */
 section, .medical-chart {
   background: #e9ecef;
   border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1rem;  /* 1.5rem에서 1rem으로 감소 */
+  margin-bottom: 1rem;  /* 1.5rem에서 1rem으로 감소 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid #dee2e6;
 }
 
+/* 섹션 제목 마진 감소 */
 .section-title {
   font-size: 1.25rem;
   color: #2d3748;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;  /* 1.5rem에서 1rem으로 감소 */
+  padding-bottom: 0.5rem;  /* 0.75rem에서 0.5rem으로 감소 */
   border-bottom: 2px solid #4a5568;
 }
 
-/* 차트 레이아웃 */
+/* 차트 행 높이 감소 */
 .chart-row {
   display: grid;
   grid-template-columns: 150px 1fr;
   border-bottom: 1px solid #e1e4e8;
-  min-height: 62px;
+  min-height: 50px;  /* 62px에서 50px로 감소 */
 }
 
+/* 입력 필드 높이 감소 */
+.form-group input,
+.form-group select,
+.form-group textarea,
+.modern-select {
+  width: 100%;
+  padding: 0.5rem;  /* 0.75rem에서 0.5rem으로 감소 */
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background-color: #fff;
+  height: 38px;  /* 45px에서 38px로 감소 */
+  box-sizing: border-box;
+}
+
+/* 차트 내용 패딩 감소 */
 .chart-label {
   background: #f6f8fa;
-  padding: 12px 20px;
+  padding: 8px 16px;  /* 12px 20px에서 8px 16px로 감소 */
   font-weight: 500;
   border-right: 1px solid #e1e4e8;
   color: #4a5568;
@@ -57,10 +75,10 @@ section, .medical-chart {
 }
 
 .chart-content {
-  padding: 12px 20px;
+  padding: 8px 16px;  /* 12px 20px에서 8px 16px로 감소 */
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;  /* 10px에서 8px로 감소 */
 }
 
 .chart-content input,

@@ -1,92 +1,112 @@
-export const saveHealthData = async (data) => {
+const API_BASE_URL = 'http://localhost:5000/api';
+const LOCAL_STORAGE_KEY = 'healthInfoData';
+
+// 로컬 스토리지 관련 함수들
+const saveToLocalStorage = (data) => {
   try {
-    localStorage.setItem('healthData', JSON.stringify(data));
+    const existingData = getFromLocalStorage();
+    const updatedData = [...existingData, data];
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedData));
     return true;
   } catch (error) {
-    console.error('데이터 저장 중 오류 발생:', error);
+    console.error('로컬 스토리지 저장 실패:', error);
     return false;
   }
 };
 
-export const loadHealthData = () => {
+const getFromLocalStorage = () => {
   try {
-    const data = localStorage.getItem('healthData');
-    return data ? JSON.parse(data) : null;
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
   } catch (error) {
-    console.error('데이터 불러오기 중 오류 발생:', error);
-    return null;
+    console.error('로컬 스토리지 조회 실패:', error);
+    return [];
   }
 };
 
-export const deleteHealthData = async () => {
+const searchInLocalStorage = (keyword) => {
   try {
-    localStorage.removeItem('healthData');
+    const allData = getFromLocalStorage();
+    return allData.filter(item => 
+      item.기본정보.이름.includes(keyword) ||
+      item.기본정보.주민번호.includes(keyword) ||
+      item.기본정보.연락처.includes(keyword)
+    );
+  } catch (error) {
+    console.error('로컬 스토리지 검색 실패:', error);
+    return [];
+  }
+};
+
+const clearLocalStorage = () => {
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
     return true;
   } catch (error) {
-    console.error('데이터 삭제 중 오류 발생:', error);
+    console.error('로컬 스토리지 삭제 실패:', error);
     return false;
   }
 };
 
-export const backupHealthData = async () => {
+// MongoDB API 함수들
+const saveToMongoDB = async (data) => {
   try {
-    const data = localStorage.getItem('healthData');
-    if (!data) return null;
-    
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `health-data-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    return true;
-  } catch (error) {
-    console.error('데이터 백업 중 오류 발생:', error);
-    return false;
-  }
-};
-
-export const restoreHealthData = async (file) => {
-  try {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          localStorage.setItem('healthData', JSON.stringify(data));
-          resolve(data);
-        } catch (error) {
-          reject(new Error('잘못된 백업 파일입니다.'));
-        }
-      };
-      reader.onerror = () => reject(new Error('파일을 읽는 중 오류가 발생했습니다.'));
-      reader.readAsText(file);
+    const response = await fetch(`${API_BASE_URL}/health-info`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
+    return response.json();
   } catch (error) {
-    console.error('데이터 복원 중 오류 발생:', error);
+    console.error('MongoDB 저장 실패:', error);
     throw error;
   }
 };
 
-export const searchHealthData = (searchTerm) => {
+const searchInMongoDB = async (keyword) => {
   try {
-    const allData = localStorage.getItem('healthData');
-    if (!allData) return [];
-
-    const parsedData = JSON.parse(allData);
-    const searchResults = [];
-
-    // 이름, 주민번호, 연락처로 검색
-    if (parsedData.기본정보?.이름?.includes(searchTerm) ||
-        parsedData.기본정보?.주민번호?.includes(searchTerm) ||
-        parsedData.기본정보?.연락처?.includes(searchTerm)) {
-      searchResults.push(parsedData);
-    }
-
-    return searchResults;
+    const response = await fetch(`${API_BASE_URL}/health-info/search?keyword=${keyword}`);
+    return response.json();
   } catch (error) {
-    console.error('데이터 검색 중 오류 발생:', error);
-    return [];
+    console.error('MongoDB 검색 실패:', error);
+    throw error;
   }
+};
+
+const getAllFromMongoDB = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health-info`);
+    return response.json();
+  } catch (error) {
+    console.error('MongoDB 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 통합 함수들
+const saveData = async (data) => {
+  const localSave = saveToLocalStorage(data);
+  const mongoSave = await saveToMongoDB(data);
+  return { localSave, mongoSave };
+};
+
+const searchData = async (keyword) => {
+  const localResults = searchInLocalStorage(keyword);
+  const mongoResults = await searchInMongoDB(keyword);
+  return { localResults, mongoResults };
+};
+
+const getAllData = async () => {
+  const localData = getFromLocalStorage();
+  const mongoData = await getAllFromMongoDB();
+  return { localData, mongoData };
+};
+
+export {
+  saveData,
+  searchData,
+  getAllData,
+  clearLocalStorage
 };
