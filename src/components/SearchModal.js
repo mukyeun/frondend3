@@ -1,121 +1,185 @@
 import React, { useState } from 'react';
-import './SearchModal.css';
+import styled from 'styled-components';
 
-function SearchModal({ onClose, onSearch, searchResults }) {
-  const [searchType, setSearchType] = useState('name'); // 'name', 'id', 'phone', 'date'
-  const [keyword, setKeyword] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+const SearchModal = ({ onClose, onSearch, searchResults }) => {
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const searchParams = {
-      type: searchType,
-      keyword,
-      startDate,
-      endDate
-    };
-    onSearch(searchParams);
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR');
+    onSearch(searchTerm);
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>건강 정보 검색</h2>
-          <button className="close-icon" onClick={onClose}>&times;</button>
-        </div>
+    <ModalOverlay>
+      <ModalContent>
+        <ModalHeader>
+          <ModalTitle>환자 검색</ModalTitle>
+          <CloseButton onClick={onClose}>&times;</CloseButton>
+        </ModalHeader>
 
-        <form onSubmit={handleSubmit}>
-          <div className="search-controls">
-            <select 
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
-              className="search-type-select"
-            >
-              <option value="name">이름</option>
-              <option value="id">주민번호</option>
-              <option value="phone">연락처</option>
-              <option value="date">날짜</option>
-            </select>
+        <SearchForm onSubmit={handleSubmit}>
+          <SearchInput
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="이름 또는 주민번호로 검색"
+          />
+          <SearchButton type="submit">검색</SearchButton>
+        </SearchForm>
 
-            {searchType === 'date' ? (
-              <div className="date-range">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="date-input"
-                />
-                <span>~</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="date-input"
-                />
-              </div>
-            ) : (
-              <div className="search-input">
-                <input
-                  type="text"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder={`${
-                    searchType === 'name' ? '이름' : 
-                    searchType === 'id' ? '주민번호' : '연락처'
-                  }로 검색`}
-                />
-                <button type="submit" className="search-button">검색</button>
-              </div>
-            )}
-          </div>
-        </form>
-
-        <div className="search-results">
+        <ResultsContainer>
           {searchResults.length > 0 ? (
-            <table className="results-table">
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>주민번호</th>
-                  <th>연락처</th>
-                  <th>등록일</th>
-                  <th>증상</th>
-                  <th>메모</th>
-                </tr>
-              </thead>
-              <tbody>
-                {searchResults.map((result, index) => (
-                  <tr key={index}>
-                    <td>{result.기본정보.이름}</td>
-                    <td>{result.기본정보.주민번호}</td>
-                    <td>{result.기본정보.연락처}</td>
-                    <td>{formatDate(result.createdAt)}</td>
-                    <td>{result.증상.join(', ')}</td>
-                    <td>{result.메모}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ResultsList>
+              {searchResults.map((result, index) => (
+                <ResultItem key={index}>
+                  <ResultInfo>
+                    <div>
+                      <strong>{result.이름}</strong>
+                      <span>{result.주민번호}</span>
+                    </div>
+                    <div>{result.연락처}</div>
+                  </ResultInfo>
+                  <SelectButton onClick={() => onClose(result)}>
+                    선택
+                  </SelectButton>
+                </ResultItem>
+              ))}
+            </ResultsList>
           ) : (
-            <p className="no-results">검색 결과가 없습니다.</p>
+            <NoResults>검색 결과가 없습니다.</NoResults>
           )}
-        </div>
-
-        <div className="modal-footer">
-          <button className="close-button" onClick={onClose}>
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
+        </ResultsContainer>
+      </ModalContent>
+    </ModalOverlay>
   );
-}
+};
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #dde2e5;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 20px;
+  color: #495057;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #495057;
+`;
+
+const SearchForm = styled.form`
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+`;
+
+const SearchInput = styled.input`
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #dde2e5;
+  border-radius: 4px;
+  font-size: 16px;
+
+  &:focus {
+    border-color: #4A90E2;
+    outline: none;
+  }
+`;
+
+const SearchButton = styled.button`
+  padding: 10px 20px;
+  background: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #357ABD;
+  }
+`;
+
+const ResultsContainer = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 20px;
+`;
+
+const ResultsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const ResultItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #dde2e5;
+  border-radius: 4px;
+`;
+
+const ResultInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  span {
+    margin-left: 10px;
+    color: #868e96;
+  }
+`;
+
+const SelectButton = styled.button`
+  padding: 8px 16px;
+  background: #7ED321;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #6BB01E;
+  }
+`;
+
+const NoResults = styled.div`
+  text-align: center;
+  padding: 20px;
+  color: #868e96;
+`;
 
 export default SearchModal;
