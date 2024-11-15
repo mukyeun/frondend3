@@ -1,59 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const SearchModal = ({ onClose, onSearch, searchResults }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(searchTerm);
-  };
-
-  return (
-    <ModalOverlay>
-      <ModalContent>
-        <ModalHeader>
-          <ModalTitle>환자 검색</ModalTitle>
-          <CloseButton onClick={onClose}>&times;</CloseButton>
-        </ModalHeader>
-
-        <SearchForm onSubmit={handleSubmit}>
-          <SearchInput
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="이름 또는 주민번호로 검색"
-          />
-          <SearchButton type="submit">검색</SearchButton>
-        </SearchForm>
-
-        <ResultsContainer>
-          {searchResults.length > 0 ? (
-            <ResultsList>
-              {searchResults.map((result, index) => (
-                <ResultItem key={index}>
-                  <ResultInfo>
-                    <div>
-                      <strong>{result.이름}</strong>
-                      <span>{result.주민번호}</span>
-                    </div>
-                    <div>{result.연락처}</div>
-                  </ResultInfo>
-                  <SelectButton onClick={() => onClose(result)}>
-                    선택
-                  </SelectButton>
-                </ResultItem>
-              ))}
-            </ResultsList>
-          ) : (
-            <NoResults>검색 결과가 없습니다.</NoResults>
-          )}
-        </ResultsContainer>
-      </ModalContent>
-    </ModalOverlay>
-  );
-};
-
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -69,117 +16,138 @@ const ModalOverlay = styled.div`
 
 const ModalContent = styled.div`
   background: white;
+  padding: 2rem;
   border-radius: 8px;
   width: 90%;
-  max-width: 600px;
+  max-width: 800px;
   max-height: 80vh;
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
 `;
 
 const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #dde2e5;
-`;
-
-const ModalTitle = styled.h2`
-  margin: 0;
-  font-size: 20px;
-  color: #495057;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #495057;
+  margin-bottom: 2rem;
+  
+  h2 {
+    margin: 0;
+    color: #2c3e50;
+  }
 `;
 
 const SearchForm = styled.form`
-  display: flex;
-  gap: 10px;
-  padding: 20px;
+  margin-bottom: 2rem;
 `;
 
-const SearchInput = styled.input`
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #dde2e5;
-  border-radius: 4px;
-  font-size: 16px;
-
-  &:focus {
-    border-color: #4A90E2;
-    outline: none;
-  }
+const SearchGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
 `;
 
-const SearchButton = styled.button`
-  padding: 10px 20px;
-  background: #4A90E2;
-  color: white;
+const Button = styled.button`
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-
-  &:hover {
-    background: #357ABD;
+  font-weight: 500;
+  
+  &.primary {
+    background: #4A90E2;
+    color: white;
+    
+    &:hover {
+      background: #357ABD;
+    }
+  }
+  
+  &.secondary {
+    background: #e9ecef;
+    color: #495057;
+    
+    &:hover {
+      background: #dee2e6;
+    }
   }
 `;
 
-const ResultsContainer = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 20px 20px;
-`;
+const SearchModal = ({ onClose, onSearch, searchResults }) => {
+  const [searchParams, setSearchParams] = useState({
+    이름: '',
+    생년월일: '',
+    연락처: '',
+    시작일: '',
+    종료일: ''
+  });
 
-const ResultsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(searchParams);
+  };
 
-const ResultItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  border: 1px solid #dde2e5;
-  border-radius: 4px;
-`;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSearchParams(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-const ResultInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  return (
+    <ModalOverlay>
+      <ModalContent>
+        <ModalHeader>
+          <h2>환자 검색</h2>
+          <Button className="secondary" onClick={onClose}>닫기</Button>
+        </ModalHeader>
 
-  span {
-    margin-left: 10px;
-    color: #868e96;
-  }
-`;
+        <SearchForm onSubmit={handleSubmit}>
+          <SearchGrid>
+            <div>
+              <label>이름</label>
+              <input
+                type="text"
+                name="이름"
+                value={searchParams.이름}
+                onChange={handleChange}
+                placeholder="이름을 입력하세요"
+              />
+            </div>
+            <div>
+              <label>생년월일</label>
+              <input
+                type="date"
+                name="생년월일"
+                value={searchParams.생년월일}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label>연락처</label>
+              <input
+                type="tel"
+                name="연락처"
+                value={searchParams.연락처}
+                onChange={handleChange}
+                placeholder="연락처를 입력하세요"
+              />
+            </div>
+          </SearchGrid>
+          <Button type="submit" className="primary">검색</Button>
+        </SearchForm>
 
-const SelectButton = styled.button`
-  padding: 8px 16px;
-  background: #7ED321;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background: #6BB01E;
-  }
-`;
-
-const NoResults = styled.div`
-  text-align: center;
-  padding: 20px;
-  color: #868e96;
-`;
+        {searchResults && searchResults.length > 0 && (
+          <div>
+            <h3>검색 결과</h3>
+            {/* 검색 결과 목록 렌더링 */}
+          </div>
+        )}
+      </ModalContent>
+    </ModalOverlay>
+  );
+};
 
 export default SearchModal;
