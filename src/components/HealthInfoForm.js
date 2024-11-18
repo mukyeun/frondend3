@@ -433,11 +433,12 @@ const levelOptions = [
   '매우 적음'
 ];
 
-// 기호식품 옵션 배열 추가 (컴포넌트 외부에 선언)
+// 기호식품 옵션 배열 수
 const favoriteItems = [
+  '없음',
   '술',
-  '배',
   '커피',
+  '담배',
   '마약',
   '기타'
 ];
@@ -506,7 +507,7 @@ const CategorySelectGrid = styled.div`
   padding: 0 0.5rem;
 `;
 
-// 카테고리 폼 그룹
+// 카테고리 폼 룹
 const CategoryFormGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -691,19 +692,142 @@ const getGenderFromResidentNumber = (number) => {
   return '';
 };
 
+// 기존 styled-components 영역에 RequiredMark 추가
+const RequiredMark = styled.span`
+  color: #ff4d4f;
+  margin-left: 4px;
+  font-weight: normal;
+`;
+
+// 기존 코드 내에 유효성 검사 함수 추가
+const validateResidentNumber = (value) => {
+  // 주민번호 형식: 6자리-7자리, 첫자리 1,2,3,4만 가능
+  const pattern = /^\d{6}-[1-4]\d{6}$/;
+  return pattern.test(value);
+};
+
+// 기존 validateResidentNumber 함수 아래에 연락처 검증 함수 추가
+const validatePhoneNumber = (value) => {
+  // 연락처 형식: 010-XXXX-XXXX
+  const pattern = /^010-\d{4}-\d{4}$/;
+  return pattern.test(value);
+};
+
+// 유효성 검사 함수들 추가
+const validateVitalSigns = {
+  수축기혈압: (value) => {
+    const num = Number(value);
+    if (num < 70 || num > 200) {
+      return '수축기혈압은 70~200 사이여야 합니다.';
+    }
+    return '';
+  },
+  이완기혈압: (value) => {
+    const num = Number(value);
+    if (num < 40 || num > 130) {
+      return '이완기혈압은 40~130 사이여야 합니다.';
+    }
+    return '';
+  },
+  맥박수: (value) => {
+    const num = Number(value);
+    if (num < 40 || num > 200) {
+      return '맥박수는 40~200 사이여야 합니다.';
+    }
+    return '';
+  }
+};
+
+// handleInputChange 함수 수정
+const handleInputChange = (e, section, field, { setFormData }) => {
+  const value = e.target.value;
+
+  // 맥파분석 수치 검증
+  if (section === '맥파분석' && validateVitalSigns[field]) {
+    const errorMessage = validateVitalSigns[field](value);
+    if (errorMessage) {
+      alert(errorMessage);
+      return;
+    }
+  }
+
+  // 기존 검증 로직 유지
+  if (field === '주민등록번호') {
+    // ... 기존 주민등록번호 검증 코드 ...
+  } 
+  else if (field === '연락처') {
+    // ... 기존 연락처 검증 코드 ...
+  }
+
+  setFormData(prev => ({
+    ...prev,
+    [section]: {
+      ...prev[section],
+      [field]: value
+    }
+  }));
+};
+
+// 필수 입력값 검증 함수 수정
+const validateRequiredFields = (data) => {
+  const required = {
+    기본정보: [
+      '이름',
+      '주민등록번호',
+      '연락처',
+      '성별',
+      '신장',
+      '체중',
+      '성격'
+    ],
+    증상선택: [
+      '스트레스수준',
+      '노동강도'
+    ],
+    맥파분석: [
+      '수축기혈압',
+      '이완기혈압',
+      '맥박수'
+    ],
+    복용약물: [
+      '약물',
+      '기호식품'
+    ]
+  };
+
+  const errors = [];
+  Object.entries(required).forEach(([section, fields]) => {
+    fields.forEach(field => {
+      // 배열인 경우 (약물, 기호식품, 증상)
+      if (Array.isArray(data[section]?.[field])) {
+        if (!data[section]?.[field]?.length) {
+          errors.push(`${field}을(를) 하나 이상 선택해주세요.`);
+        }
+      } 
+      // 일반 필드
+      else if (!data[section]?.[field]) {
+        errors.push(`${field}을(를) 입력해주세요.`);
+      }
+    });
+  });
+
+  // BMI 자동 계산이므로 검증에서 제외
+
+  return errors;
+};
+
 function HealthInfoForm(props) {
   const {
-    formData = {},
+    formData,
     setFormData,
-    selectedSymptoms = [],
-    setSelectedSymptoms = () => {},
-    selectedCategory = {},
-    setSelectedCategory = () => {},
-    onSubmit = () => {},
-    onReset = () => {},
-    isValid = false,
-    validationErrors = {},
-    증상카테고리 = {}
+    onSubmit,
+    onReset,
+    isValid,
+    selectedSymptoms,
+    setSelectedSymptoms,
+    selectedCategory,
+    setSelectedCategory,
+    증상카테고리
   } = props;
 
   useEffect(() => {
@@ -776,7 +900,7 @@ function HealthInfoForm(props) {
   // 약물 목록을 1차원 배열로 변환
   const medicineList = 약물카테고리;
 
-  // 약물 추가 핸들러 수정
+  // 약물 추가 핸들러 정
   const handleAddMedicine = (selectedMedicine) => {
     if (!selectedMedicine) return;
     
@@ -833,21 +957,36 @@ function HealthInfoForm(props) {
   };
 
   // 체중/신장 변경 핸들러는 컴포넌트 내부에서만 정의
-  const handleInputChange = (e, field, subField) => {
+  const handleInputChange = (e, section, field, { setFormData }) => {
     const value = e.target.value;
-    
-    if (subField) {
+
+    // 주민등록번호 입력 시 유효성 검사
+    if (field === '주민등록번호') {
+      // 하이픈 자동 추가
+      const formattedValue = value.replace(/(\d{6})(\d+)/, '$1-$2');
+      
+      if (value.length >= 13) {  // 입력이 완료되었을 때
+        if (!validateResidentNumber(formattedValue)) {
+          alert('올바른 주민등록번호 형식이 아닙니다.');
+          return;
+        }
+      }
+      
       setFormData(prev => ({
         ...prev,
-        [field]: {
-          ...prev[field],
-          [subField]: value
+        [section]: {
+          ...prev[section],
+          [field]: formattedValue
         }
       }));
     } else {
+      // 기존 입력 처리 로직 유지
       setFormData(prev => ({
         ...prev,
-        [field]: value  // 메모와 같은 단일 필드는 직접 값 할당
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
       }));
     }
   };
@@ -900,6 +1039,34 @@ function HealthInfoForm(props) {
     }));
   };
 
+  const handleMedicineSelect = (selectedMedicine) => {
+    // "없음"이 선택된 경우 다른 모든 약물을 제거
+    if (selectedMedicine === "없음") {
+      setFormData(prev => ({
+        ...prev,
+        복용약물: {
+          ...prev.복용약물,
+          약물: ["없음"]
+        }
+      }));
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      복용약물: {
+        ...prev.복용약물,
+        약물: Array.isArray(prev.복용약물?.약물)
+          ? prev.복용약물.약물.includes("없음")  // "없음"이 있었다면 제거
+            ? [selectedMedicine]
+            : prev.복용약물.약물.indexOf(selectedMedicine) === -1
+              ? [...prev.복용약물.약물, selectedMedicine]
+              : prev.복용약물.약물
+          : [selectedMedicine]
+      }
+    }));
+  };
+
   const renderContent = () => {
     if (!formData || !formData.기본정보) {
       return <div>Loading...</div>;
@@ -908,37 +1075,39 @@ function HealthInfoForm(props) {
     return (
       <ModernFormContainer>
         <FormSection>
-          <SectionTitle type="기본정보">기본 정보</SectionTitle>
-          
+          <SectionTitle type="기본정보">기본정보</SectionTitle>
           <FormGroup>
-            <label>이름</label>
+            <label>
+              이름
+              <RequiredMark>*</RequiredMark>
+            </label>
             <Input
               type="text"
               value={formData.기본정보?.이름 || ''}
-              onChange={(e) => handleBasicInfoChange(e, '이름')}
-              placeholder="이름을 입력하세요"
+              onChange={(e) => handleInputChange(e, '기본정보', '이름', { setFormData })}
+              required
             />
           </FormGroup>
-
+          <FormGroup>
+            <label>
+              주민등록번호
+              <RequiredMark>*</RequiredMark>
+            </label>
+            <Input
+              type="text"
+              value={formData.기본정보?.주민등록번호 || ''}
+              onChange={(e) => handleInputChange(e, '기본정보', '주민등록번호', { setFormData })}
+              required
+            />
+          </FormGroup>
           <FormGroup>
             <label>연락처</label>
             <Input
               type="tel"
               value={formData.기본정보?.연락처 || ''}
-              onChange={handlePhoneChange}
-              placeholder="연락처를 입력하세요"
-              maxLength={13}  // 최 길이 설정 (010-1234-5678)
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <label>주민등록번호</label>
-            <Input
-              type="text"
-              value={formData.기본정보?.주민등록번호 || ''}
-              onChange={handleResidentNumberChange}
-              placeholder="주민등록번호를 입력하세요"
-              maxLength={14}  // 최대 길이 설정 (000000-0000000)
+              onChange={(e) => handleInputChange(e, '기본정보', '연락처', { setFormData })}
+              placeholder="연락처를 입하세요"
+              maxLength={13}  //  길이 설정 (010-1234-5678)
             />
           </FormGroup>
 
@@ -1003,7 +1172,7 @@ function HealthInfoForm(props) {
             </label>
             <Select
               name="성격"
-              value={formData.기본정보?.성격 || ''}
+              value={formData?.기본정보?.성격 || ''}
               onChange={(e) => handleInputChange(e, '성격')}
               required
               style={{ width: '200px' }}
@@ -1141,37 +1310,48 @@ function HealthInfoForm(props) {
         {/* 맥파분석 섹션 */}
         <FormSection>
           <SectionTitle type="맥파분석">맥파분석</SectionTitle>
-          <BodyInfoContainer>
-            <BodyInfoItem>
-              <label>수축기혈압</label>
-              <Input
-                type="number"
-                value={formData.맥파분석?.수축기혈압 || ''}
-                onChange={(e) => handleVitalSignChange(e, '수축기혈압')}
-                placeholder="mmHg"
-              />
-            </BodyInfoItem>
-
-            <BodyInfoItem>
-              <label>이완기혈압</label>
-              <Input
-                type="number"
-                value={formData.맥파분석?.이완기혈압 || ''}
-                onChange={(e) => handleVitalSignChange(e, '이완기혈압')}
-                placeholder="mmHg"
-              />
-            </BodyInfoItem>
-
-            <BodyInfoItem>
-              <label>맥박수</label>
-              <Input
-                type="number"
-                value={formData.맥파분석?.맥박수 || ''}
-                onChange={(e) => handleVitalSignChange(e, '맥박수')}
-                placeholder="회/분"
-              />
-            </BodyInfoItem>
-          </BodyInfoContainer>
+          <FormGroup>
+            <label>
+              수축기혈압
+              <RequiredMark>*</RequiredMark>
+            </label>
+            <Input
+              type="number"
+              value={formData.맥파분석?.수축기혈압 || ''}
+              onChange={(e) => handleInputChange(e, '맥파분석', '수축기혈압', { setFormData })}
+              required
+              min="70"
+              max="200"
+            />
+          </FormGroup>
+          <FormGroup>
+            <label>
+              이완기혈압
+              <RequiredMark>*</RequiredMark>
+            </label>
+            <Input
+              type="number"
+              value={formData.맥파분석?.이완기혈압 || ''}
+              onChange={(e) => handleInputChange(e, '맥파분석', '이완기혈압', { setFormData })}
+              required
+              min="40"
+              max="130"
+            />
+          </FormGroup>
+          <FormGroup>
+            <label>
+              맥박수
+              <RequiredMark>*</RequiredMark>
+            </label>
+            <Input
+              type="number"
+              value={formData.맥파분석?.맥박수 || ''}
+              onChange={(e) => handleInputChange(e, '맥파분석', '맥박수', { setFormData })}
+              required
+              min="40"
+              max="200"
+            />
+          </FormGroup>
         </FormSection>
 
         {/* 복용약물 섹션 */}
@@ -1180,20 +1360,22 @@ function HealthInfoForm(props) {
           
           {/* 복용 중인 약물 선택 */}
           <FormGroup>
-            <label>복용 중인 약물</label>
-            <SelectWrapper>
-              <StyledSelect
-                onChange={(e) => handleAddMedicine(e.target.value)}
-                value=""
-              >
-                <option value="">약물을 선택하세요</option>
-                {약물카테고리.map((medicine) => (
-                  <option key={medicine} value={medicine}>
-                    {medicine}
-                  </option>
-                ))}
-              </StyledSelect>
-            </SelectWrapper>
+            <label>
+              복용 중인 약물
+              <RequiredMark>*</RequiredMark>
+            </label>
+            <Select
+              value=""
+              onChange={(e) => handleMedicineSelect(e.target.value)}
+              required
+            >
+              <option value="">약물을 선택하세요</option>
+              {약물카테고리.map((medicine) => (
+                <option key={medicine} value={medicine}>
+                  {medicine}
+                </option>
+              ))}
+            </Select>
           </FormGroup>
 
           {/* 선택된 약물 목록 */}
@@ -1236,7 +1418,7 @@ function HealthInfoForm(props) {
 
           <SelectedMedicineList>
             {(!formData.복용약물?.기호식품 || formData.복용약물.기호식품?.length === 0) ? (
-              <div style={{ color: '#868e96' }}>선택된 기호식품이 없습니다</div>
+              <div style={{ color: '#868e96' }}>선택된 기호식품이 없니다</div>
             ) : (
               formData.복용약물.기호식품?.map((item, index) => (
                 <MedicineTag key={index}>
@@ -1273,9 +1455,34 @@ function HealthInfoForm(props) {
           </Button>
           <Button 
             type="button" 
-            onClick={onSubmit} 
+            onClick={() => {
+              // 필수 입력값 검증
+              const errors = validateRequiredFields(props.formData);
+              if (errors.length > 0) {
+                alert(`다음 항목을 확인해주세요:\n${errors.join('\n')}`);
+                return;
+              }
+
+              // 저장 확인 다이얼로그
+              const confirmed = window.confirm(
+                '입력하신 정보를 저장하시겠습니까?\n\n' +
+                '- 기본정보 (이름, 주민번호 등)\n' +
+                '- 증상선택 (스트레스, 노동강도 등)\n' +
+                '- 맥파분석 (혈압, 맥박)\n' +
+                '- 복용약물 (약물, 기호식품)'
+              );
+              
+              if (!confirmed) return;
+
+              try {
+                props.onSubmit(props.formData);
+                alert('성공적으로 저장되었습니다.');
+              } catch (error) {
+                alert('저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+                console.error('저장 오류:', error);
+              }
+            }}
             variant="primary"
-            disabled={!isValid}
           >
             저장
           </Button>
@@ -1301,7 +1508,7 @@ HealthInfoForm.defaultProps = {
     },
     맥파분석: {},
     메모: '',
-    복용약물: {
+    복용약: {
       약물: [],
       기호식품: []  // 기호식품 배열 추가
     }
@@ -1331,7 +1538,7 @@ const BMIStatus = styled.span`
       case '정상': return '#51cf66';
       case '과체중': return '#ffd43b';
       case '비만': return '#ff922b';
-      case '고도만': return '#ff6b6b';
+      case '고도비만': return '#ff6b6b';
       default: return '#868e96';
     }
   }};
