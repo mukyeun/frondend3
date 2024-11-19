@@ -41,7 +41,20 @@ export const newHealthInfoService = {
   // 건강 정보 생성
   create: async (data) => {
     try {
-      const response = await api.post('/', data);
+      // 성격 데이터를 기본정보로 이동
+      const formattedData = {
+        ...data,
+        기본정보: {
+          ...data.기본정보,
+          성격: data.메모?.성격 || data.기본정보?.성격 || null
+        },
+        메모: {
+          ...data.메모,
+          성격: undefined // 메모에서 성격 필드 제거
+        }
+      };
+      
+      const response = await api.post('/', formattedData);
       return response.data;
     } catch (error) {
       console.error('Create health info error:', error);
@@ -63,7 +76,20 @@ export const newHealthInfoService = {
   // 건강 정보 수정
   update: async (id, data) => {
     try {
-      const response = await api.put(`/${id}`, data);
+      // 성격 데이터를 기본정보로 이동
+      const formattedData = {
+        ...data,
+        기본정보: {
+          ...data.기본정보,
+          성격: data.메모?.성격 || data.기본정보?.성격 || null
+        },
+        메모: {
+          ...data.메모,
+          성격: undefined // 메모에서 성격 필드 제거
+        }
+      };
+      
+      const response = await api.put(`/${id}`, formattedData);
       return response.data;
     } catch (error) {
       console.error('Update health info error:', error);
@@ -71,7 +97,7 @@ export const newHealthInfoService = {
     }
   },
 
-  // 건강 정보 삭제
+  // 나머지 메서드들은 그대로 유지
   delete: async (id) => {
     try {
       const response = await api.delete(`/${id}`);
@@ -82,7 +108,6 @@ export const newHealthInfoService = {
     }
   },
 
-  // 특정 건강 정보 조회
   getById: async (id) => {
     try {
       const response = await api.get(`/${id}`);
@@ -93,7 +118,6 @@ export const newHealthInfoService = {
     }
   },
 
-  // 건강 정보 검색
   search: async (keyword) => {
     try {
       const response = await api.get(`/search?keyword=${keyword}`);

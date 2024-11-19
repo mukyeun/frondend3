@@ -1,41 +1,54 @@
-export const healthInfoService = {
-  create: async (data) => {
-    try {
-      // 데이터 구조화
-      const formattedData = {
-        기본정보: {
-          ...data.기본정보,
-          createdAt: new Date().toISOString()
-        },
-        증상선택: data.증상선택 || {},
-        맥파분석: data.맥파분석 || {},
-        복용약물: data.복용약물 || {},
-        메모: data.메모 || ''
-      };
+import axios from 'axios';
 
-      // 로컬 스토리지에 저장
-      const existingData = JSON.parse(localStorage.getItem('healthInfo') || '[]');
-      existingData.push({
-        ...formattedData,
-        id: Date.now()
-      });
-      
-      localStorage.setItem('healthInfo', JSON.stringify(existingData));
-      console.log('Saved data:', formattedData);  // 저장된 데이터 확인
-      
-      return { success: true, data: formattedData };
+// baseURL 수정 (api가 중복되지 않도록)
+const BASE_URL = 'http://localhost:5000';  // 하드코딩으로 먼저 테스트
+
+// axios 기본 설정
+axios.defaults.baseURL = BASE_URL;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+export const healthInfoService = {
+  // 목록 조회
+  async getList(params = {}) {
+    try {
+      const response = await axios.get('/api/health-info', { params });
+      console.log('API 응답:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Storage error:', error);
-      throw new Error('저장에 실패했습니다.');
+      console.error('API 에러:', error);
+      throw new Error(error.response?.data?.message || '데이터를 불러오는데 실패했습니다.');
     }
   },
-  
-  getList: async () => {
+
+  // 생성
+  async create(data) {
     try {
-      return JSON.parse(localStorage.getItem('healthInfo') || '[]');
+      console.log('요청 데이터:', data);  // 디버깅용
+      const response = await axios.post('/api/health-info', data);
+      console.log('응답 데이터:', response.data);  // 디버깅용
+      return response.data;
     } catch (error) {
-      console.error('Retrieval error:', error);
-      throw new Error('데이터 조회에 실패했습니다.');
+      console.error('저장 에러:', error);
+      throw new Error(error.response?.data?.message || '저장에 실패했습니다.');
+    }
+  },
+
+  // 수정
+  async update(id, data) {
+    try {
+      const response = await axios.put(`/api/health-info/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || '수정에 실패했습니다.');
+    }
+  },
+
+  // 삭제
+  async delete(id) {
+    try {
+      await axios.delete(`/api/health-info/${id}`);
+    } catch (error) {
+      throw new Error(error.response?.data?.message || '삭제에 실패했습니다.');
     }
   }
 };

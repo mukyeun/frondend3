@@ -1,53 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const FilterPanel = ({ filters, onFilterChange }) => {
-  const handleFilterChange = (filterKey, value) => {
-    onFilterChange({
-      ...filters,
-      [filterKey]: value
-    });
-  };
-
-  return (
-    <FilterContainer>
-      <FilterGroup>
-        <FilterLabel>날짜 범위</FilterLabel>
-        <FilterSelect
-          value={filters.dateRange || ''}
-          onChange={(e) => handleFilterChange('dateRange', e.target.value)}
-        >
-          <option value="">전체 기간</option>
-          <option value="today">오늘</option>
-          <option value="week">이번 주</option>
-          <option value="month">이번 달</option>
-          <option value="year">올해</option>
-        </FilterSelect>
-      </FilterGroup>
-
-      <FilterGroup>
-        <FilterLabel>상태</FilterLabel>
-        <FilterSelect
-          value={filters.status || ''}
-          onChange={(e) => handleFilterChange('status', e.target.value)}
-        >
-          <option value="">전체 상태</option>
-          <option value="normal">정상</option>
-          <option value="caution">주의</option>
-          <option value="warning">경고</option>
-        </FilterSelect>
-      </FilterGroup>
-    </FilterContainer>
-  );
-};
-
 const FilterContainer = styled.div`
   display: flex;
   gap: 20px;
-  padding: 16px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
   margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 `;
 
 const FilterGroup = styled.div`
@@ -57,20 +17,48 @@ const FilterGroup = styled.div`
 `;
 
 const FilterLabel = styled.label`
-  font-size: 14px;
-  color: #666;
+  font-weight: 500;
+  color: #495057;
 `;
 
 const FilterSelect = styled.select`
-  padding: 6px 8px;
-  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border: 1px solid #ced4da;
   border-radius: 4px;
-  font-size: 14px;
-  
-  &:focus {
-    outline: none;
-    border-color: #1a73e8;
-  }
+  background-color: white;
 `;
+
+function FilterPanel({ filters, onFilterChange }) {
+  return (
+    <FilterContainer>
+      <FilterGroup>
+        <FilterLabel>상태</FilterLabel>
+        <FilterSelect
+          value={filters.status || ''}
+          onChange={(e) => onFilterChange({ ...filters, status: e.target.value })}
+        >
+          <option value="">전체</option>
+          <option value="정상">정상</option>
+          <option value="주의">주의</option>
+          <option value="위험">위험</option>
+        </FilterSelect>
+      </FilterGroup>
+
+      <FilterGroup>
+        <FilterLabel>기간</FilterLabel>
+        <FilterSelect
+          value={filters.period || ''}
+          onChange={(e) => onFilterChange({ ...filters, period: e.target.value })}
+        >
+          <option value="">전체기간</option>
+          <option value="1week">1주일</option>
+          <option value="1month">1개월</option>
+          <option value="3months">3개월</option>
+          <option value="6months">6개월</option>
+        </FilterSelect>
+      </FilterGroup>
+    </FilterContainer>
+  );
+}
 
 export default FilterPanel;

@@ -1,0 +1,28 @@
+/* 모바일 우선 접근법 사용 */
+/* 기본 스타일 (모바일) */
+:root {
+  --section-padding: 1rem;
+  --font-size-title: 1.5rem;
+  --font-size-subtitle: 1.2rem;
+  --font-size-body: 1rem;
+}
+
+/* 태블릿 (768px 이상) */
+@media screen and (min-width: 768px) {
+  :root {
+    --section-padding: 2rem;
+    --font-size-title: 2rem;
+    --font-size-subtitle: 1.5rem;
+    --font-size-body: 1.1rem;
+  }
+}
+
+/* 데스크톱 (1024px 이상) */
+@media screen and (min-width: 1024px) {
+  :root {
+    --section-padding: 3rem;
+    --font-size-title: 2.5rem;
+    --font-size-subtitle: 1.8rem;
+    --font-size-body: 1.2rem;
+  }
+}

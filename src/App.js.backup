@@ -1,0 +1,60 @@
+import { BrowserRouter as Router, Routes, Route, NavLink as RouterNavLink } from 'react-router-dom';
+// ... 다른 imports ...
+
+// styled-components 이름 변경
+const StyledNavLink = styled(RouterNavLink)`
+  text-decoration: none;
+  color: #495057;
+  padding: 1rem 2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-bottom: 4px solid transparent;
+  transition: all 0.3s;
+
+  &:hover {
+    color: #3b82f6;
+    background-color: #f8f9fa;
+  }
+
+  &.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+    background-color: #f0f7ff;
+    border-radius: 8px 8px 0 0;
+    font-weight: bold;
+  }
+`;
+
+// ... 다른 styled components ...
+
+function App() {
+  // ... 다른 코드 ...
+
+  return (
+    <Router>
+      <AppContainer>
+        <NavBar>
+          <StyledNavLink 
+            to="/list" 
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
+            목록보기
+          </StyledNavLink>
+          <StyledNavLink 
+            to="/new" 
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
+            새 건강정보 입력
+          </StyledNavLink>
+        </NavBar>
+        <Routes>
+          <Route path="/list" element={<HealthInfoList />} />
+          <Route path="/new" element={<NewHealthInfo />} />
+          <Route path="/" element={<Navigate to="/list" replace />} />
+        </Routes>
+      </AppContainer>
+    </Router>
+  );
+}
+
+export default App;

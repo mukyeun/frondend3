@@ -1,12 +1,37 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+`;
+
+const PageButton = styled.button`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.active ? '#007bff' : '#dee2e6'};
+  background-color: ${props => props.active ? '#007bff' : 'white'};
+  color: ${props => props.active ? 'white' : '#212529'};
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${props => props.active ? '#0056b3' : '#e9ecef'};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+function Pagination({ currentPage, totalPages, onPageChange }) {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <PaginationContainer>
-      <PageButton 
+      <PageButton
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -16,8 +41,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {pages.map(page => (
         <PageButton
           key={page}
+          active={page === currentPage}
           onClick={() => onPageChange(page)}
-          active={currentPage === page}
         >
           {page}
         </PageButton>
@@ -31,31 +56,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       </PageButton>
     </PaginationContainer>
   );
-};
-
-const PaginationContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 20px 0;
-`;
-
-const PageButton = styled.button`
-  padding: 8px 12px;
-  border: 1px solid ${props => props.active ? '#1a73e8' : '#ddd'};
-  background-color: ${props => props.active ? '#1a73e8' : 'white'};
-  color: ${props => props.active ? 'white' : 'black'};
-  border-radius: 4px;
-  cursor: pointer;
-  
-  &:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-  }
-
-  &:hover:not(:disabled) {
-    background-color: ${props => props.active ? '#1557b0' : '#f5f5f5'};
-  }
-`;
+}
 
 export default Pagination;

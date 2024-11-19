@@ -1,31 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const SearchBar = ({ value, onChange, onSearch, placeholder = '검색어를 입력하세요' }) => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(value);
-  };
-
-  return (
-    <SearchForm onSubmit={handleSubmit}>
-      <SearchInput
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
-      <SearchButton type="submit">
-        검색
-      </SearchButton>
-    </SearchForm>
-  );
-};
+const SearchContainer = styled.div`
+  margin-bottom: 1rem;
+`;
 
 const SearchForm = styled.form`
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
 `;
 
 const SearchInput = styled.input`
@@ -37,21 +19,48 @@ const SearchInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #1a73e8;
+    border-color: #4361ee;
   }
 `;
 
 const SearchButton = styled.button`
   padding: 8px 16px;
-  background-color: #1a73e8;
+  background-color: #4361ee;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 
   &:hover {
-    background-color: #1557b0;
+    background-color: #3730a3;
   }
 `;
+
+const SearchBar = ({ value, onChange, onSearch }) => {
+  const handleChange = (e) => {
+    onChange(e);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch();
+  };
+
+  return (
+    <SearchContainer>
+      <SearchForm onSubmit={handleSubmit}>
+        <SearchInput
+          type="text"
+          value={value || ''}
+          onChange={handleChange}
+          placeholder="이름으로 검색"
+        />
+        <SearchButton type="submit">
+          검색
+        </SearchButton>
+      </SearchForm>
+    </SearchContainer>
+  );
+};
 
 export default SearchBar;
