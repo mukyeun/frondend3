@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api/health-info';
 
 // axios 인스턴스 생성
 const api = axios.create({
@@ -8,6 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true  // CORS 인증 추가
 });
 
 // 요청 인터셉터에 토큰 추가
@@ -38,7 +39,7 @@ api.interceptors.response.use(
 );
 
 export const newHealthInfoService = {
-  // 건강 보 생성
+  // 건강  생성
   create: async (data) => {
     try {
       const formattedData = {
@@ -134,19 +135,29 @@ export const newHealthInfoService = {
     }
   },
 
-  // 여러 항목 삭제 메서드 수정
+  // 여러 항목 삭제 메서드 디버깅 로그 추가
   deleteMultiple: async (ids) => {
     try {
-      const response = await api.post('/health-info/multiple-delete', {
-        ids: ids
+      // 요청 정보 로깅
+      console.log('Sending request to:', `${API_URL}/multiple-delete`);
+      console.log('Request payload:', { ids });
+
+      const response = await api.post('/multiple-delete', { 
+        ids: ids.map(String)  // ID를 문자열로 변환
       });
+
+      // 응답 로깅
+      console.log('Server response:', response);
+      
       return response.data;
     } catch (error) {
       console.error('Delete multiple health info error:', error);
-      if (error.response?.status === 404) {
-        throw new Error('삭제 API를 찾을 수 없습니다.');
+      if (error.response) {
+        // 자세한 에러 정보 로깅
+        console.error('Error status:', error.response.status);
+        console.error('Error data:', error.response.data);
       }
-      throw new Error('삭제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      throw error;
     }
   },
 };
