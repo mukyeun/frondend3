@@ -1,9 +1,9 @@
 export const personalityOptions = [
-    '매우 급함',
+    '매우급함',
     '급함',
-    '보통',
+    '원만',
     '느긋',
-    '매우 느긋'
+    '매우느긋'
   ];
   
   export const levelOptions = [

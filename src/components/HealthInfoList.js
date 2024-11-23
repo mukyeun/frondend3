@@ -9,6 +9,7 @@ import ErrorBoundary from './common/ErrorBoundary';
 import ActionButtons from './ActionButtons';
 import { healthInfoService } from '../services/api';
 import { getHealthInfoList } from '../api/healthInfo';
+import { newHealthInfoService } from '../services/newHealthInfoService';
 
 const HealthInfoList = () => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -78,7 +79,7 @@ const HealthInfoList = () => {
     });
   };
 
-  // 선택된 항목 일괄 삭제
+  // 선택된 항목 일괄 삭제 함수 수정
   const handleBulkDelete = async () => {
     if (selectedItems.length === 0) {
       alert('삭제할 항목을 선택해주세요.');
@@ -87,7 +88,8 @@ const HealthInfoList = () => {
 
     if (window.confirm(`선택한 ${selectedItems.length}개 항목을 삭제하시겠습니까?`)) {
       try {
-        await Promise.all(selectedItems.map(id => healthInfoService.delete(id)));
+        // 여러 항목 한 번에 삭제
+        await newHealthInfoService.deleteMultiple(selectedItems);
         setSelectedItems([]);
         loadList();
         alert('선택한 항목이 삭제되었습니다.');

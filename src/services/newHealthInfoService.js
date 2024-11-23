@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/health-info';
+const API_URL = 'http://localhost:5000/api';
 
 // axios 인스턴스 생성
 const api = axios.create({
@@ -38,10 +38,9 @@ api.interceptors.response.use(
 );
 
 export const newHealthInfoService = {
-  // 건강 정보 생성
+  // 건강 보 생성
   create: async (data) => {
     try {
-      // 성격 데이터를 기본정보로 이동
       const formattedData = {
         ...data,
         기본정보: {
@@ -49,11 +48,15 @@ export const newHealthInfoService = {
           성격: data.메모?.성격 || data.기본정보?.성격 || null
         },
         메모: {
-          ...data.메모,
-          성격: undefined // 메모에서 성격 필드 제거
+          ...data.메모
         }
       };
       
+      // 메모에서 성격 필드 제거
+      if (formattedData.메모) {
+        delete formattedData.메모.성격;
+      }
+
       const response = await api.post('/', formattedData);
       return response.data;
     } catch (error) {
@@ -76,7 +79,6 @@ export const newHealthInfoService = {
   // 건강 정보 수정
   update: async (id, data) => {
     try {
-      // 성격 데이터를 기본정보로 이동
       const formattedData = {
         ...data,
         기본정보: {
@@ -84,11 +86,15 @@ export const newHealthInfoService = {
           성격: data.메모?.성격 || data.기본정보?.성격 || null
         },
         메모: {
-          ...data.메모,
-          성격: undefined // 메모에서 성격 필드 제거
+          ...data.메모
         }
       };
       
+      // 메모에서 성격 필드 제거
+      if (formattedData.메모) {
+        delete formattedData.메모.성격;
+      }
+
       const response = await api.put(`/${id}`, formattedData);
       return response.data;
     } catch (error) {
@@ -126,7 +132,23 @@ export const newHealthInfoService = {
       console.error('Search health info error:', error);
       throw error;
     }
-  }
+  },
+
+  // 여러 항목 삭제 메서드 수정
+  deleteMultiple: async (ids) => {
+    try {
+      const response = await api.post('/health-info/multiple-delete', {
+        ids: ids
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Delete multiple health info error:', error);
+      if (error.response?.status === 404) {
+        throw new Error('삭제 API를 찾을 수 없습니다.');
+      }
+      throw new Error('삭제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  },
 };
 
 export default newHealthInfoService;
